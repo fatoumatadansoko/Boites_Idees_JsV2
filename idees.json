@@ -1,0 +1,28 @@
+{
+  "idees": [
+    {
+      "id": "d59e",
+      "libelle": "Rénovation des classes",
+      "auteur": "fatoumata DANSOKO",
+      "etat": "Désapprouvée",
+      "categorie": "Éducation",
+      "message": "Rechercher de façon méthodique une ou des solutions au problème rencontré afin de retenir une solution adaptée au contexte - Niveau 2Rechercher de façon méthodique une ou des solutions au problème rencontré afin de retenir une solution adaptée au contexte - Niveau 2"
+    },
+    {
+      "id": "1dd5",
+      "libelle": "Développement",
+      "auteur": "Mariama BA",
+      "etat": "Approuvée",
+      "categorie": "Santé",
+      "message": "Rechercher de façon méthodique une ou des solutions au problème rencontré afin de retenir une solution adaptée au contexte - Niveau 2Rechercher de façon méthodique une ou des solutions au problème rencontré afin de retenir une solution adaptée au contexte - Niveau 2"
+    },
+    {
+      "id": "8f4c",
+      "libelle": "Développement",
+      "auteur": "Mariama BA",
+      "message": "Le but de ce brief est de se familiariser avec la manipulation du DOM (Document Object Modèle) : créer un formulaire HTML simple et utiliser JavaScript pour valider les données saisies. Afficher un message de succès si toutes les données sont valides.",
+      "categorie": "Santé",
+      "etat": "Désapprouvée"
+    }
+  ]
+}
