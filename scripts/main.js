@@ -3,11 +3,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const ideeURL = 'http://localhost:3000/idees';
     let allIdees = [];
 
-    // Fonction pour afficher les idées
     const displayIdees = (idees) => {
         ideeContainer.innerHTML = '';
 
         idees.forEach(function(idee) {
+            let actionButtons = '';
+            
+            if (idee.etat !== 'Approuvée' && idee.etat !== 'Désapprouvée') {
+                actionButtons = `
+                    <i data-id="${idee.id}" class="bi bi-heart-fill text-success" style="font-size: 1.5rem;" data-action="approve" title="Approuver"></i>
+                    <i data-id="${idee.id}" class="bi bi-hand-thumbs-down-fill text-warning" style="font-size: 1.5rem;" data-action="reject" title="Désapprouver"></i>
+                `;
+            }
+            
             const ideeHtml = `
                 <div class="col-md-4 mb-3">
                     <div id="idee-${idee.id}" class="card">
@@ -17,9 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p class="card-text">${idee.message}</p>
                             <p class="card-text"><small class="text-muted">État: ${idee.etat}</small></p>
                             <p class="card-text"><small class="text-muted">Catégorie: ${idee.categorie}</small></p>
-                            <button data-id="${idee.id}" class="btn btn-success" data-action="approve">Approuver</button>
-                            <button data-id="${idee.id}" class="btn btn-warning" data-action="reject">Désapprouvée</button>
-                            <button data-id="${idee.id}" class="btn btn-danger" data-action="delete">Supprimer</button>
+                            <div class="d-flex justify-content-between">
+                                ${actionButtons}
+                                <i data-id="${idee.id}" class="bi bi-trash3 text-danger" style="font-size: 1.5rem;" data-action="delete" title="Supprimer"></i>
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -28,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // Récupération et affichage des idées existantes
     fetch(ideeURL)
         .then(response => response.json())
         .then(ideeData => {
@@ -36,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
             displayIdees(allIdees);
         });
 
-    // Gestion de la soumission du formulaire
     const ideeForm = document.querySelector('#idee-form');
     ideeForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -44,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const libelleInput = ideeForm.querySelector('#libelle').value;
         const auteurInput = ideeForm.querySelector('#auteur').value;
         const messageInput = ideeForm.querySelector('#message').value;
-        const etatInput = ideeForm.querySelector('#etat').value; // "En attente" par défaut
         const categorieInput = ideeForm.querySelector('#categorie').value;
 
         fetch(ideeURL, {
@@ -52,9 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({
                 libelle: libelleInput,
                 auteur: auteurInput,
-                etat: etatInput,
+                message: messageInput,
                 categorie: categorieInput,
-                message: messageInput
+                etat: 'En attente'
             }),
             headers: {
                 'Content-Type': 'application/json'
@@ -64,12 +70,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 allIdees.push(idee);
                 displayIdees(allIdees);
                 ideeForm.reset();
-                document.querySelector('#etat').value = 'En attente'; // Réinitialiser l'état
-                submitBtn.disabled = true;
+                document.getElementById('submitBtn').disabled = true;
             });
     });
 
-    // Fonction pour mettre à jour l'état d'une idée
     const updateIdeeState = (id, newState) => {
         fetch(`${ideeURL}/${id}`, {
             method: 'PATCH',
@@ -85,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     };
 
-    // Fonction pour supprimer une idée
     const deleteIdee = (id) => {
         fetch(`${ideeURL}/${id}`, {
             method: 'DELETE'
@@ -95,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // Gestion des boutons approuver, refuser et supprimer
     ideeContainer.addEventListener('click', (e) => {
         const ideeId = e.target.dataset.id;
 
@@ -108,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Validation des champs
     function validateField(input, errorElement, minLength, pattern) {
         let isValid = true;
         errorElement.innerHTML = "";
@@ -127,24 +128,19 @@ document.addEventListener('DOMContentLoaded', function() {
         isValid = validateField(document.getElementById('libelle'), document.getElementById('errorLibelle'), 3) && isValid;
         isValid = validateField(document.getElementById('auteur'), document.getElementById('errorAuteur'), 3) && isValid;
         isValid = validateField(document.getElementById('message'), document.getElementById('errorMessage'), 10) && isValid;
-        isValid = validateField(document.getElementById('etat'), document.getElementById('errorEtat'), 3) && isValid;
-        isValid = validateField(document.getElementById('categorie'), document.getElementById('errorCategorie'), 3) && isValid;
+        isValid = validateField(document.getElementById('categorie'), document.getElementById('errorCategorie')) && isValid;
 
+        const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = !isValid;
     }
 
-    document.getElementById('libelle').addEventListener('input', validateForm);
-    document.getElementById('auteur').addEventListener('input', validateForm);
-    document.getElementById('message').addEventListener('input', validateForm);
-    document.getElementById('etat').addEventListener('input', validateForm);
-    document.getElementById('categorie').addEventListener('input', validateForm);
+    const formInputs = document.querySelectorAll('#idee-form input, #idee-form textarea, #idee-form select');
+    formInputs.forEach(input => input.addEventListener('input', validateForm));
 
-    ideeForm.addEventListener('submit', function(e) {
-        validateForm();
-        if (submitBtn.disabled) {
-            e.preventDefault();
-        } else {
-            alert("Formulaire soumis avec succès !");
+    const messageInput = document.getElementById('message');
+    messageInput.addEventListener('input', function() {
+        if (messageInput.value.length > 255) {
+            messageInput.value = messageInput.value.slice(0, 255);
         }
     });
 });
